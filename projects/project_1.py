@@ -47,7 +47,7 @@ class CashRegister:
 
         return result
 
-    def _dynamic_programming(self, to_return : int) -> dict:
+    def _not_greedy(self, to_return : int) -> dict:
         min_count = None
         array = list()
 
@@ -75,7 +75,7 @@ class CashRegister:
                 change = recursion(to_return - coin * c, index + 1, count + c)
                 if change is not None:
                     if c:
-                        change._update({coin : c})
+                        change.update({coin : c})
                     best_change = change
             return best_change
         return recursion(to_return, 0, 0)
@@ -86,7 +86,7 @@ class CashRegister:
         if self._check_cash():
             result = self._greedy_algorithm(to_return)
         else:
-            result = self._dynamic_programming(to_return)
+            result = self._not_greedy(to_return)
 
         final_value = float(0)
         for ind, val in result.items():
