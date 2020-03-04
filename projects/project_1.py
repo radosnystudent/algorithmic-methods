@@ -45,41 +45,38 @@ class CashRegister:
                         to_return -= index
                         result[index] += 1
 
-        return result
+        if to_return == 0:
+            return result
+        return None
+
+    def _recursion(self, to_return : int, index : int, count : int, array : list, min_count : any) -> dict:
+        if to_return == 0:
+            if min_count is None or min_count > count:
+                min_count = count
+                return dict(), min_count
+
+        if index >= len(array):
+            return None, min_count
+            
+        best_change = None
+        coin = array[index]
+        
+        taking = min(to_return // coin, self.__cash[coin])
+
+        for c in range(taking, -1, -1):
+            change, min_count = self._recursion(to_return - coin * c, index + 1, count + c, array, min_count)
+            if change is not None:
+                if c:
+                    change.update({coin : c})
+                best_change = change
+        return best_change, min_count
 
     def _not_greedy(self, to_return : int) -> dict:
-        min_count = None
         array = list()
-
         for key in self.__cash.keys():
             array.append(key)
-
-        def recursion(to_return : int, index : int, count : int) -> dict:
-            nonlocal min_count
-            nonlocal array
-
-            if to_return == 0:
-                if min_count is None or count < min_count:
-                    min_count = count
-                    return dict()
-
-            if index >= len(array):
-                return None
-                
-            best_change = None
-            coin = array[index]
-            
-            taking = min(to_return // coin, self.__cash[coin])
-
-            for c in range(taking, -1, -1):
-                change = recursion(to_return - coin * c, index + 1, count + c)
-                if change is not None:
-                    if c:
-                        change.update({coin : c})
-                    best_change = change
-            return best_change
-        return recursion(to_return, 0, 0)
-
+        #result, _  = self.recursion(to_return, 0, 0, array, None)
+        return self._recursion(to_return, 0, 0, array, None)[0]
 
     def calculate(self, to_pay : float, given_money: float):
         to_return = int((given_money - to_pay) * 100)
@@ -88,16 +85,13 @@ class CashRegister:
         else:
             result = self._not_greedy(to_return)
 
-        final_value = float(0)
-        for ind, val in result.items():
-            final_value += float(ind/100) * val
-
-        self._update(result)
-
-        if float(to_return/100) == round(final_value,3):
-            print(f'Wydana reszta - {round(final_value,3)}zł:')
+        if result is not None:
+            self._update(result)
+            final_value = float(0)
             for index, value in result.items():
-                print(f'{round(float(index/100), 2)}zł - {value}')
+                print(f'{round(float(index/100), 3)}zł - {value}')
+                final_value += float(index/100) * value
+            print(f'Wydana reszta - {round(final_value,3)}zł:')
         else:
             print('Nie można wydać reszty.')
         print('\n\n')
