@@ -60,7 +60,7 @@ class Fraction:
         denom = self.getDenominator() * rhs.getDenominator()
         return Fraction(num, denom)
 
-    def __mult__(self, rhs : 'Fraction') -> 'Fraction':
+    def __mul__(self, rhs : 'Fraction') -> 'Fraction':
         num = self.getNumerator() * rhs.getNumerator()
         denom = self.getDenominator() * rhs.getDenominator()
         return Fraction(num, denom)
@@ -69,3 +69,11 @@ class Fraction:
         num = self.getNumerator() * rhs.getDenominator()
         denom = self.getDenominator() * rhs.getNumerator()
         return Fraction(num, denom)
+
+    def __pow__(self, a : int) -> 'Fraction':
+        if a == 0:
+            return Fraction(1, 1)
+        result = self
+        for _ in range(a-1):
+            result *= self
+        return result
