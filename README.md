@@ -4,4 +4,6 @@ All projects for Algorithmic methods classes conducted by prof. UAM Jerzy Szyma≈
 
 #
 
-[Change-making](projects/project_1.py)
+[Change-making](Change_making/project_1.py)
+
+[Finding roots of polynomial](Polynomials/)
