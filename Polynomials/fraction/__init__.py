@@ -1,3 +1,4 @@
+
 class Fraction:
 
     def __reduce(self, nom : int, denom : int, sign : int) -> tuple:
@@ -9,9 +10,9 @@ class Fraction:
 
     def __init__(self, numerator : int, denominator : int):
         if not isinstance(numerator,int) or not isinstance(denominator,int):
-            raise TypeError
+            raise TypeError('licznik i mianownik musza byc liczbami calkowitymi')
         if denominator == 0:
-            raise ZeroDivisionError
+            raise ZeroDivisionError('mianownik nie może być zerem')
         if numerator == 0:
             self.__numerator = 0
             self.__denominator = 1
@@ -22,6 +23,9 @@ class Fraction:
             else:
                 sign = 1
             (self.__numerator, self.__denominator) = self.__reduce(numerator, denominator, sign)
+
+    def __hash__(self):
+        return hash((self.__numerator, self.__denominator))
 
     def __repr__(self) -> str:
         return f'{self.__numerator}/{self.__denominator}'
