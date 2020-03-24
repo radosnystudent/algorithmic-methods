@@ -16,7 +16,6 @@ class Fraction:
         if numerator == 0:
             self.__numerator = 0
             self.__denominator = 1
-            pass
         else:
             if (numerator < 0 and denominator >=0) or (numerator >= 0 and denominator < 0):
                 sign = -1
