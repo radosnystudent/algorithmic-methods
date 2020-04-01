@@ -21,7 +21,7 @@ class Engine:
 
     def changeAI(self):
         print(type(self.AI))
-        print(self.AI_list)
+        #print(self.AI_list)
         index = self.AI_list.index(self.AI)
         if index == len(self.AI_list) - 1:
             index = 0
@@ -234,5 +234,3 @@ class GraphicalUI:
 
         if self.engine.checkField(pos):
             self.drawMove(pos, 'p')
-
-

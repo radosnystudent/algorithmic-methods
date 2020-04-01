@@ -1,5 +1,4 @@
 from random import choice
-# from copy import deepcopy
 from math import inf
 
 class Dummie:
@@ -48,7 +47,7 @@ class MinMax:
         return None, 'Not Done'
 
     def move(self):
-        print(self.grid)
+        #print(self.grid)
         num = self.__move()
         #print(f'{str(int((num-1)/3))} - {str(int(((num-1) % 3) + 1))}')
         col = str(int((num-1)/3))
@@ -74,7 +73,6 @@ class MinMax:
 
         for key, value in board.items():
             if value == ' ':
-                #print(key)
                 v = key
                 v = v.replace('1', '0').replace('2', '1').replace('3', '2')
                 v = v.replace('a', '0').replace('b', '1').replace('c', '2')
