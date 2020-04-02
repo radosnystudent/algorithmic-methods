@@ -7,3 +7,5 @@ All projects for Algorithmic methods classes conducted by prof. UAM Jerzy Szyma≈
 [Change-making](Change_making/main.py)
 
 [Finding roots of polynomial](Polynomials/)
+
+[Tic Tac Toe](TicTacToe/)
