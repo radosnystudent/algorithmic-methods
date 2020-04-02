@@ -1,111 +1,84 @@
-from random import choice
+from random import choices
 from math import inf
+from typing import Tuple, Optional
+from copy import deepcopy
 
 class Dummie:
 
     def __init__(self):
-        self.grid = None
+        self.grid = list()
 
-    def setGrid(self, grid : dict):
-        self.grid = grid.copy()
+    def setGrid(self, grid : list):
+        self.grid = [[grid[i][j] for j in range(len(grid[0]))] for i in range(len(grid))]
 
     def move(self):
-        choices = list()
-        for key, item in self.grid.items():
-            if item == ' ':
-                choices.append(key)
-        return choice(choices)
+        while True:
+            x,y = choices([0,1,2], k=2)
+            if self.grid[x][y] == ' ':
+                return [x, y]
 
 class MinMax:
 
     def __init__(self):
-        self.grid = None
+        self.grid = list()
 
-    def setGrid(self, grid : dict):
-        self.grid = grid.copy()
+    def setGrid(self, grid : list):
+        self.grid = [[grid[i][j] for j in range(len(grid[0]))] for i in range(len(grid))] 
 
-    def checkStates(self, board : dict):
-        draw = True
-        vert_horiz = [
-            ['a1', 'a2', 'a3'], ['b1', 'b2', 'b3'], ['c1', 'c2', 'c3'],
-            ['a1', 'b1', 'c1'], ['a2', 'b2', 'c2'], ['a3', 'b3', 'c3'],
+    def move(self) -> list:
+        pos = self.MinMax(self.grid, sum(x == ' ' for row in self.grid for x in row), 'o')
+        x, y, _ = pos
+        return [x,y]
+
+    def checkConditions(self, board : list, turn : str) -> bool:
+        winning_conditions = [
+            #horizontal
+            [board[0][0], board[0][1], board[0][2]],
+            [board[1][0], board[1][1], board[1][2]],
+            [board[2][0], board[2][1], board[2][2]],
+            #vertical
+            [board[0][0], board[1][0], board[2][0]],
+            [board[0][1], board[1][1], board[2][1]],
+            [board[0][2], board[1][2], board[2][2]],
+            #diagonal
+            [board[0][0], board[1][1], board[2][2]],
+            [board[2][0], board[1][1], board[0][2]],
         ]
-        diagonal = [['a1', 'b2', 'c3'], ['a3', 'b2', 'c1']]
-
-        for value in board.values():
-            if value == ' ':
-                draw = False
-        if draw:
-            return None, 'Draw'
-
-        for cond in vert_horiz:
-            if board[cond[0]] == board[cond[1]] and board[cond[1]] == board[cond[2]] and board[cond[0]] is not ' ':
-                return board[cond[0]], 'Done'
-        for cond in diagonal:
-            if board[cond[0]] == board[cond[1]] and board[cond[1]] == board[cond[2]] and board[cond[0]] is not ' ':
-                return board[cond[1]], 'Done'
-        return None, 'Not Done'
-
-    def move(self):
-        #print(self.grid)
-        num = self.__move()
-        #print(f'{str(int((num-1)/3))} - {str(int(((num-1) % 3) + 1))}')
-        col = str(int((num-1)/3))
-        row = str(int(((num-1) % 3) + 1))
-        col = col.replace('0', 'a').replace('1', 'b').replace('2', 'c')
-        #print(col+row)
-        return col+row
-
-    def __move(self, board = None, turn = 'o'):
-        if board is None:
-            board = self.grid
-
-        win_lose, isdone = self.checkStates(board)
-
-        if isdone == 'Done' and win_lose == 'o':
-            return 1
-        elif isdone == 'Done' and win_lose == 'x':
-            return -1
-        elif isdone == 'Draw':
-            return 0
         
-        moves, empty_fields, empty_cells = list(), list(), list()
+        return True if [turn, turn, turn] in winning_conditions else False
 
-        for key, value in board.items():
-            if value == ' ':
-                v = key
-                v = v.replace('1', '0').replace('2', '1').replace('3', '2')
-                v = v.replace('a', '0').replace('b', '1').replace('c', '2')
-                empty_fields.append(int(v[0])*int(v[1]))
-                empty_cells.append(key)
 
-        for field, cell in zip(empty_fields, empty_cells):
-            actual_move = {}
+    def MinMax(self, board : list, depth : int, turn : str) -> list:
+        
+        def evaluateScore(board : list) -> int:
+            if self.checkConditions(board, 'o'):
+                return 1 
+            elif self.checkConditions(board, 'x'):
+                return -1
+            else:
+                return 0
 
-            actual_move['index'] = field
-            new_board = board.copy()
-            new_board[cell] = turn
+        best = [inf, inf, -inf] if turn == 'o' else [inf, inf, inf]
+
+        if depth == 0 or (self.checkConditions(board, 'x') or self.checkConditions(board, 'o')):
+            return [-1, -1, evaluateScore(board)]
+
+        for cell in [[x,y] for x,row in enumerate(board) for y,cell in enumerate(row) if cell == ' ']:
+            x, y = cell
+            board[x][y] = turn
+            if turn == 'o':
+                score = self.MinMax(board, depth - 1, 'x')
+            else:
+                score = self.MinMax(board, depth - 1, 'o')
+
+            board[x][y] = ' '
+            score = [x,y,score[2]]
 
             if turn == 'o':
-                result = self.__move(new_board, 'x')
-                actual_move['score'] = result
+                if score[2] > best[2]:
+                    best = score[:]
             else:
-                result = self.__move(new_board, 'o')
-                actual_move['score'] = result
+                if score[2] < best[2]:
+                    best = score[:]
 
-            moves.append(actual_move)
-
-        best_move = None
-        if turn == 'o':
-            best = -inf
-            for m in moves:
-                if m['score'] > best:
-                    best = m['score']
-                    best_move = m['index']
-        else:
-            best = inf
-            for m in moves:
-                if m['score'] < best:
-                    best = m['score']
-                    best_move = m['index']
-        return best_move
+        return best

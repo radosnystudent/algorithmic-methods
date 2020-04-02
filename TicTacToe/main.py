@@ -1,5 +1,6 @@
 from interface import Engine, TextUI, GraphicalUI
 from AI import Dummie, MinMax
+import random
 
 class Game:
 
@@ -10,8 +11,9 @@ class Game:
 
     def run(self):
         while True:
-            msg = self.T_UI.game()
-            #self.G_UI.game()
+            #msg = self.T_UI.game()
+            self.G_UI.game()
+            #self.
             if msg == 'koniec':
                 break
 g = Game()
