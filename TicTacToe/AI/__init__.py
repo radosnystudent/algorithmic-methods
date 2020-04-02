@@ -1,12 +1,14 @@
 from random import choices
 from math import inf
-from typing import Tuple, Optional
 from copy import deepcopy
 
 class Dummie:
 
     def __init__(self):
         self.grid = list()
+
+    def __repr__(self):
+        return 'Dummie!'
 
     def setGrid(self, grid : list):
         self.grid = [[grid[i][j] for j in range(len(grid[0]))] for i in range(len(grid))]
@@ -21,6 +23,9 @@ class MinMax:
 
     def __init__(self):
         self.grid = list()
+
+    def __repr__(self):
+        return 'MiniMax!'
 
     def setGrid(self, grid : list):
         self.grid = [[grid[i][j] for j in range(len(grid[0]))] for i in range(len(grid))] 

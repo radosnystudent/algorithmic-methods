@@ -1,7 +1,6 @@
 import pygame as pg
 from pygame.locals import *
 from random import choice
-from AI import Dummie
 
 show = f'1 | 2 | 3\n'\
 '------------\n'\
@@ -11,22 +10,14 @@ show = f'1 | 2 | 3\n'\
 
 class Engine:
     def __init__(self, AI_list : list):
-        """self.__grid = {'a1' : ' ', 'b1' : ' ','c1' : ' ',
-        'a2' : ' ','b2' : ' ', 'c2' : ' ',
-        'a3' : ' ','b3' : ' ','c3' : ' ' } """
-
-        #self.__grid = {'a1' : ' ', 'b1' : 'x','c1' : 'o',
-        #'a2' : 'o','b2' : ' ', 'c2' : 'o',
-        #'a3' : ' ','b3' : ' ','c3' : 'x' }
-
         self.__grid = [
                     [' ',' ',' '],
                     [' ',' ',' '],
                     [' ',' ',' ']
         ]
-        self.__actual_turn = 'p' #choice(['c', 'p'])
+        self.__actual_turn = 'p'
         self.AI_list = AI_list
-        self.AI = AI_list[1] #choice(AI_list)
+        self.AI = choice(AI_list)
         self.__winner = False
 
     def changeAI(self):
@@ -36,12 +27,13 @@ class Engine:
         else:
             index += 1
         self.AI = self.AI_list[index]
-
-    def getTurn(self) -> str:
-        return self.__actual_turn
+        print(f'Ai zmieniona na: {self.AI}')
 
     def changeTurn(self, turn : str):
         self.__actual_turn = turn
+
+    def getTurn(self) -> str:
+        return self.__actual_turn
 
     def getGrid(self) -> list:
         return self.__grid
@@ -132,11 +124,11 @@ class TextUI():
                 move = int(0)
         return self.engine.updateGrid(x,y, 'p')
         
-    def game(self):
+    def game(self) -> str:
         choice = ''
         while not self.engine.ifWinner():
             while choice not in ['i', 'a', 'g'] and not self.engine.ifWinner():
-                choice = input('z - zmiana interface\'u\na - zmiana AI\ng - dalsza gra bez zmian\n> ')
+                choice = input('i - zmiana interface\'u\na - zmiana AI\ng - dalsza gra bez zmian\n> ')
 
                 if choice == 'g':
                     msg = self.playerMove()
@@ -154,7 +146,7 @@ class TextUI():
                 elif choice == 'a':
                     self.engine.changeAI()
                 elif choice == 'i':
-                    pass
+                    return 'zmiana'
                 choice = ''
         return 'koniec'
 
@@ -174,6 +166,8 @@ class GraphicalUI:
         pg.display.set_caption('Tic Tac Toe!')
         self.x_img = pg.image.load('interface\\images\\x.png')
         self.o_img = pg.image.load('interface\\images\\o.png')
+        self.ai_img = pg.image.load('interface\\images\\ai.png')
+        self.ui_img = pg.image.load('interface\\images\\ui.png')
         self.x_img = pg.transform.scale(self.x_img, (80, 80))
         self.o_img = pg.transform.scale(self.o_img, (80, 80))
         self.screen.fill(white)
@@ -184,12 +178,16 @@ class GraphicalUI:
         pg.draw.line(self.screen,line_color,(0,self.height/3),(self.width, self.height/3),7)
         pg.draw.line(self.screen,line_color,(0,self.height/3*2),(self.width, self.height/3*2),7)
 
+        self.screen.blit(self.ai_img, (0,400))
+        self.screen.blit(self.ui_img, (200,400))
+        temp_turn = self.engine.getTurn()
         for x,row in enumerate(self.engine.getGrid()):
             for y, cell in enumerate(row):
                 if cell == 'x':
                     self.drawMove(x,y, 'p')
                 if cell == 'o':
                     self.drawMove(x,y, 'c')
+        self.engine.changeTurn(temp_turn)
 
     def game(self):
         self.prepare()
@@ -199,12 +197,23 @@ class GraphicalUI:
                     if event.type == QUIT:
                         pg.quit()
                     elif event.type is MOUSEBUTTONDOWN:
-                        self.userClick()
+                        msg = self.userClick()
+                        if msg == 'ai':
+                            self.engine.changeAI()
+                        elif msg == 'zmiana':
+                            pg.quit()
+                            return 'zmiana'
             elif self.engine.getTurn() == 'c':
                 self.engine.AI.setGrid(self.engine.getGrid())
                 move = self.engine.AI.move()
                 self.drawMove(move[0], move[1],'c')
                 self.engine.computerMove(move)
+
+            if self.engine.checkCondition() != '' or self.engine.ifWinner():
+                pg.quit()
+                print(self.engine.checkCondition())
+                return 'koniec'
+
             pg.display.update()
             self.CLOCK.tick()
 
@@ -232,6 +241,12 @@ class GraphicalUI:
 
     def userClick(self):
         y,x = pg.mouse.get_pos()
+
+        if x >= 400 and y < 200:
+            return 'ai'
+        elif x >= 400 and y > 200:
+            return 'zmiana'
+
         if x < self.width / 3:
             posx = 0
         elif x < self.width / 3*2:
@@ -251,3 +266,4 @@ class GraphicalUI:
 
         if self.engine.checkField(posx, posy):
             self.drawMove(posx, posy, 'p')
+        return 'clicked'
